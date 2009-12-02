@@ -1,0 +1,4 @@
+#!/usr/bin/perl
+use lib 'lib';
+use Pipe::Cmd;
+Pipe::Cmd->run;
