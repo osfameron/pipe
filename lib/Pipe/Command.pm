@@ -38,13 +38,7 @@ sub execute {
         or return $self->no_iterator($session, $args);
 
 
-    my $filtered_it = sub {
-        if (my @values = $it->()) {
-            return $self->filter($session, @values);
-        } else {
-            return;
-        }
-    };
+    my $filtered_it = $self->filter($session, $it);
 
     $session->iterator($filtered_it);
     $self->connect_output( $session );
@@ -130,8 +124,8 @@ sub no_iterator {
 }
 
 sub filter {
-    my ($self, $session, @values) = @_;
-    return @values;
+    my ($self, $session, $it) = @_;
+    return $it;
 }
 
 1;
