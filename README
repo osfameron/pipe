@@ -34,9 +34,8 @@ dir: !!perl/hash:Path::Class::Dir
 file: Pipe.pm
 file_spec_class: ~
 
-$ ./pipe find lib | ./pipe grep '$_->stat
-->size > 10_000'
-YAML::XS Error: bad tag found for scalar: 'tag:yaml.org,2002:perl/hash:Pipe' at 
-lib/Pipe/Command.pm line 83, <STDIN> line 3.
+$ ./pipe find lib | ./pipe grep '$_->stat->size > 1000'
+List of files found!
 
-# d'oh
+lib/Pipe/Command.pm
+

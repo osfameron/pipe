@@ -37,13 +37,17 @@ sub execute {
     my $it = $session->iterator
         or return $self->no_iterator($session, $args);
 
+
     my $filtered_it = sub {
         if (my @values = $it->()) {
             return $self->filter($session, @values);
+        } else {
+            return;
         }
     };
 
-    $self->connect_output( $session, $filtered_it );
+    $session->iterator($filtered_it);
+    $self->connect_output( $session );
 }
 
 sub connect_input {
@@ -55,9 +59,7 @@ sub connect_input {
     my $it = $self->mk_reader(*STDIN);
 
     my $header = $it->();
-    use Data::Dumper;
-    die Dumper($header);
-    my $command_stack = $header->command_stack || [];
+    my $command_stack = $header->{command_stack} || [];
     $session->push_command( @$command_stack );
 
     $session->iterator($it);
@@ -67,18 +69,19 @@ sub connect_input {
 sub mk_reader {
     my ($self, $fh) = @_;
 
-    my $sep = local $/ = "\n---";
-
-    my $buffer;
+    my (@buffer, $next);
 
     return sub {
-        my $header = $buffer || <$fh>;
-        return unless defined $header;
-        defined (my $chunk = <$fh>) or die "YAML header, but no body?";
+        @buffer = $next ? ($next) : (); undef $next;
+        while (defined (my $line = <$fh>)) {
+            if ($line =~ /^---/ and @buffer) {
+                $next = $line;
+                last;
+            }
+            push @buffer, $line;
+        }
 
-        $buffer = $chunk=~s/^(---.*)?$//;
-
-        my $yaml = join '', $header, $chunk;
+        my $yaml = join '', @buffer;
 
         return Load($yaml);
     };
@@ -88,11 +91,11 @@ sub output_header {
     my ($self, $session) = @_;
 
     # better, $session->header, TODO
-    print Dump( { command_stack => $session->all_commands } );
+    print Dump( { command_stack => [ $session->all_commands ] } );
 }
 
 sub connect_output {
-    my ($self, $session, $it) = @_;
+    my ($self, $session) = @_;
 
     my $pretty = $self->pretty || ! -p *STDOUT;
 
