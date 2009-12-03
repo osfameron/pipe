@@ -1,41 +1,44 @@
+# basic command...
 $ ./pipe find lib
-List of files found!
 
-lib/Pipe/.Command.pm.swp
-lib/Pipe/Command.pm
-lib/Pipe/Command/find.pm
-lib/Pipe/Command/grep.pm
-lib/Pipe/Command/.grep.pm.swp
-lib/Pipe/Session.pm
-lib/Pipe.pm
+    List of files found!
 
-$ ./pipe find lib | cat
----
-command_stack: !!perl/hash:Pipe::Command::find
-  app: !!perl/hash:Pipe
-    arg0: pipe
-    command:
-      --help: App::Cmd::Command::help
-      -?: App::Cmd::Command::help
-      -h: App::Cmd::Command::help
-      commands: App::Cmd::Command::commands
-      find: Pipe::Command::find
-        .
-        .
-        .
-file: Session.pm
-file_spec_class: ~
---- !!perl/hash:Path::Class::File
-dir: !!perl/hash:Path::Class::Dir
-  dirs:
-  - lib
-  file_spec_class: ~
-  volume: ''
-file: Pipe.pm
-file_spec_class: ~
+    lib/Pipe/Command.pm
+    lib/Pipe/Command/find.pm
+    lib/Pipe/Command/grep.pm
+    lib/Pipe/Session.pm
+    lib/Pipe.pm
 
+# ... with filtering
 $ ./pipe find lib | ./pipe grep '$_->stat->size > 1000'
-List of files found!
 
-lib/Pipe/Command.pm
+    List of files found!
 
+    lib/Pipe/Command.pm
+
+# ... passed through to a standard unix filter...
+$ ./pipe find lib | cat
+    ---
+    command_stack: !!perl/hash:Pipe::Command::find
+      app: !!perl/hash:Pipe
+        arg0: pipe
+            .
+            . <snip>
+            .
+    --- !!perl/hash:Path::Class::File
+    dir: !!perl/hash:Path::Class::Dir
+      dirs:
+      - lib
+      file_spec_class: ~
+      volume: ''
+    file: Pipe.pm
+    file_spec_class: ~
+
+# ... with --pretty
+$ ./pipe find lib --pretty | cat
+
+    lib/Pipe/Command.pm
+    lib/Pipe/Command/find.pm
+    lib/Pipe/Command/grep.pm
+    lib/Pipe/Session.pm
+    lib/Pipe.pm
