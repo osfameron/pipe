@@ -1,4 +1,4 @@
-package Pipe::Cmd;
+package Pipe;
 use Moose;
 extends 'MooseX::App::Cmd';
 
